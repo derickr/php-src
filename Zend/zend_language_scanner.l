@@ -1943,6 +1943,7 @@ string:
 
 
 <INITIAL>"<?" {
+	zend_error(E_COMPILE_ERROR, "Short Open Tags are no longer supported on line %d", CG(zend_lineno));
 	if (CG(short_tags)) {
 		BEGIN(ST_IN_SCRIPTING);
 		if (PARSER_MODE()) {
