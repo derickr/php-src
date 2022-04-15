@@ -2078,8 +2078,9 @@ static void date_interval_object_to_hash(php_interval_obj *intervalobj, HashTabl
 		PHP_DATE_INTERVAL_ADD_PROPERTY("special_type", special.type);
 		PHP_DATE_INTERVAL_ADD_PROPERTY("special_amount", special.amount);
 		PHP_DATE_INTERVAL_ADD_PROPERTY("have_weekday_relative", have_weekday_relative);
-		PHP_DATE_INTERVAL_ADD_PROPERTY("have_special_relative", have_special_relative);
 	}
+	/* Records whether this is a special relative interval that can't be serialized */
+	PHP_DATE_INTERVAL_ADD_PROPERTY("have_special_relative", have_special_relative);
 
 #undef PHP_DATE_INTERVAL_ADD_PROPERTY
 }
@@ -4199,6 +4200,10 @@ PHP_METHOD(DateInterval, __serialize)
 	ZEND_PARSE_PARAMETERS_NONE();
 
 	intervalobj = Z_PHPINTERVAL_P(object);
+
+	if (intervalobj->diff->have_special_relative) {
+		zend_throw_exception_ex(NULL, 0, "Serializing special relative time specifications is not supported");
+	}
 
 	array_init(return_value);
 	myht = Z_ARRVAL_P(return_value);
