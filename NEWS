@@ -2,7 +2,9 @@ PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ?? ??? ????, PHP 8.1.15
 
-
+- Core:
+  . Fixed bug GH-10072 (PHP crashes when execute_ex is overridden and a __call
+    trampoline is used from internal code). (Derick)
 
 05 Jan 2023, PHP 8.1.14
 
