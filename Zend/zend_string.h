@@ -630,6 +630,7 @@ EMPTY_SWITCH_DEFAULT_CASE()
 	_(ZEND_STR_AUTOGLOBAL_REQUEST,     "_REQUEST") \
 	_(ZEND_STR_COUNT,                  "count") \
 	_(ZEND_STR_SENSITIVEPARAMETER,     "SensitiveParameter") \
+	_(ZEND_STR_ADD,                    "add") \
 	_(ZEND_STR_CONST_EXPR_PLACEHOLDER, "[constant expression]") \
 
 
