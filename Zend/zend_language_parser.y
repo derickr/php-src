@@ -279,6 +279,8 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 %type <ast> match match_arm_list non_empty_match_arm_list match_arm match_arm_cond_list
 %type <ast> enum_declaration_statement enum_backing_type enum_case enum_case_expr
 %type <ast> function_name non_empty_member_modifiers
+%type <ast> type_substitution_list type_substitution_list_elements
+%type <ast> type_pair type_substitution_pair_list type_substitution_pair_list_elements
 
 %type <num> returns_ref function fn is_reference is_variadic property_modifiers
 %type <num> method_modifiers class_const_modifiers member_modifier optional_cpp_modifiers
@@ -588,11 +590,23 @@ is_variadic:
 
 class_declaration_statement:
 		class_modifiers T_CLASS { $<num>$ = CG(zend_lineno); }
-		T_STRING extends_from implements_list backup_doc_comment '{' class_statement_list '}'
-			{ $$ = zend_ast_create_decl(ZEND_AST_CLASS, $1, $<num>3, $7, zend_ast_get_str($4), $5, $6, $9, NULL, NULL); }
+		T_STRING type_substitution_list extends_from implements_list backup_doc_comment '{' class_statement_list '}'
+			{ $$ = zend_ast_create_decl(ZEND_AST_CLASS, $1, $<num>3, $8, zend_ast_get_str($4), $6, $7, $10, NULL, $5); }
 	|	T_CLASS { $<num>$ = CG(zend_lineno); }
 		T_STRING extends_from implements_list backup_doc_comment '{' class_statement_list '}'
 			{ $$ = zend_ast_create_decl(ZEND_AST_CLASS, 0, $<num>2, $6, zend_ast_get_str($3), $4, $5, $8, NULL, NULL); }
+;
+
+type_substitution_list:
+		%empty { $$ = 0; }
+	|	'<' type_substitution_list_elements '>' { $$ = $2; }
+;
+
+type_substitution_list_elements:
+		type_substitution_list_elements ',' type_expr
+			{ $$ = zend_ast_list_add($1, $3); }
+	|	type_expr
+			{ $$ = zend_ast_create_list(1, ZEND_AST_TYPE_LIST, $1); }
 ;
 
 class_modifiers:
@@ -654,7 +668,23 @@ enum_case_expr:
 
 extends_from:
 		%empty				{ $$ = NULL; }
-	|	T_EXTENDS class_name	{ $$ = $2; }
+	|	T_EXTENDS class_name type_substitution_pair_list	{ $$ = zend_ast_create(ZEND_AST_EXTENDS_INFO, $2, $3); }
+;
+
+type_substitution_pair_list:
+		%empty { $$ = 0; }
+	|	'<' type_substitution_pair_list_elements '>' { $$ = $2; }
+;
+
+type_substitution_pair_list_elements:
+		type_substitution_pair_list_elements ',' type_pair
+			{ $$ = zend_ast_list_add($1, $3); }
+	|	type_pair
+			{ $$ = zend_ast_create_list(1, ZEND_AST_TYPE_LIST, $1); }
+;
+
+type_pair:
+		type_expr T_AS type_expr { $$ = zend_ast_create(ZEND_AST_EXTENDS_TYPE_PAIR, $1, $3); }
 ;
 
 interface_extends_list:

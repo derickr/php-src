@@ -8084,8 +8084,9 @@ static void zend_compile_class_decl(znode *result, zend_ast *ast, bool toplevel)
 	}
 
 	if (extends_ast) {
-		ce->parent_name =
-			zend_resolve_const_class_name_reference(extends_ast, "class name");
+		ZEND_ASSERT(extends_ast->kind == ZEND_AST_EXTENDS_INFO);
+		zend_ast *class_node = extends_ast->child[0];
+		ce->parent_name = zend_resolve_const_class_name_reference(class_node, "class name");
 	}
 
 	CG(active_class_entry) = ce;
